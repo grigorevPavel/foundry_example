@@ -7,8 +7,12 @@ import "forge-std/Vm.sol";
 import "test/utils/RandomAddress.sol";
 
 contract ContractTest is Test, RandomAddress {
+
+    event Add(int256 x, int256 y);
+    event Sub(int256 x, int256 y);
    
     Contract testContract;
+
     function setUp() public {        
         testContract = new Contract();
     }
@@ -22,11 +26,9 @@ contract ContractTest is Test, RandomAddress {
         
     }
     function testAddEventEmitted() public {
-        console.logInt(testContract.x());
         vm.expectEmit(false, false, false, false);
-        emit Contract.Add(1, 1);
+        emit Add(1, 1);
         testContract.add(1);
-    
     }
     function testAddAllowedAnyAddress() public {
         address newAddress = randomAddress();
@@ -39,14 +41,16 @@ contract ContractTest is Test, RandomAddress {
         int256 oldX = testContract.x();
         testContract.sub(y);
         int256 newX = testContract.x();
-        assertEq(newX- oldX, -y);
+        assertEq(oldX - newX, y);
     }
     function testSubAllowedAnyAddress() public {
         address newAddress = randomAddress();
         vm.prank(newAddress);
         testContract.sub(1);
     }
-    event Add(uint256 x, uint256 y);
-    event Sub(uint256 x, uint256 y);
-
+     function testSubEventEmitted() public {
+        vm.expectEmit(false, false, false, false);
+        emit Sub(-1, 1);
+        testContract.sub(1);
+    }
 }
